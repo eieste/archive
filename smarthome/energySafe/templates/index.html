@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>flatOS - energySafe</title>
+
+    <!-- Sets initial viewport load and disables zooming  -->
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+
+    <!-- Makes your prototype chrome-less once bookmarked to your phone's home screen -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+
+
+    <!-- Include the compiled Ratchet CSS -->
+    <link href="{{ url_for('static', filename='css/ratchet.css') }}" rel="stylesheet">
+
+
+      <style>
+          .loader {
+  border: 3px solid #f3f3f3; /* Light grey */
+  border-top: 3px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 15px;
+  height: 15px;
+  animation: spin 2s linear infinite;
+}
+
+          .right{
+            position: absolute;
+              right: 15px;
+              display: inline-block
+          }
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+
+      </style>
+
+  </head>
+  <body>
+    <header class="bar bar-nav">
+      <a href="#popover">
+        <h1 class="title">
+          flatOS - energySafe
+          <span class="icon icon-caret"></span>
+        </h1>
+      </a>
+    </header>
+
+
+    <!-- Wrap all non-bar HTML in the .content div (this is actually what scrolls) -->
+    <div class="content">
+
+        <div id="popover" class="popover">
+            <header class="bar bar-nav">
+                <h1 class="title">Modes</h1>
+            </header>
+            <ul class="table-view">
+                <li class="table-view-divider">All</li>
+                <li class="table-view-cell" id="action-start-all">Start all</li>
+                <li class="table-view-cell" id="action-stop-all">Stop All</li>
+                <li class="table-view-divider">Specials</li>
+                <li class="table-view-cell" id="action-stop-except-internet">Stop except Internet</li>
+                <li class="table-view-cell" id="action-media-on">Media on</li>
+                <li class="table-view-cell" id="action-workday-start">Workday start</li>
+
+                <li class="table-view-divider">Display</li>
+                <li class="table-view-cell" id="action-display-on">Display On</li>
+                <li class="table-view-cell" id="action-display-off">Display Off</li>
+                <li class="table-view-divider">Workstation</li>
+                <li class="table-view-cell" id="action-workstation-on">Workstation ON</li>
+                <li class="table-view-cell" id="action-workstation-off">Workstation Off</li>
+                <li class="table-view-divider">All</li>
+                <li class="table-view-cell" id="action-status-all">Status</li>
+            </ul>
+        </div>
+
+        <ul class="table-view" id="event-list">
+        </ul>
+    </div>
+    <!-- Include the compiled Ratchet JS -->
+    <script src="{{ url_for('static', filename='js/ratchet.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='async.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='energySafe.js') }}"></script>
+
+  </body>
+</html>

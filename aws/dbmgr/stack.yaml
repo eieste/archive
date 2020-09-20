@@ -1,0 +1,109 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Providedes the Infrastructure by using Nested Stacks
+
+
+Resources:
+
+  PymsqlLambdaLayer:
+    Type: "AWS::Lambda::LayerVersion"
+    Properties:
+      Content:
+        S3Bucket:
+          Fn::ImportValue:
+            !Join [ ':', [ !Ref 'SeedStackName', 'SeedBucketName' ] ]
+
+        S3Key: "development/cfn-stacks/infrastructure/dbmgr/pymsql-layer.zip"
+      CompatibleRuntimes:
+        - "python3.8"
+        - "python3.7"
+
+
+  DatabaseCredentialApiRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "lambda.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Path: /
+      Policies:
+        - PolicyName: "CloudWatchLogs"
+          PolicyDocument:
+            Statement:
+              - Action:
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:GetLogEvents"
+                  - "logs:PutLogEvents"
+                Resource: "arn:aws:logs:*:*:*"
+                Effect: "Allow"
+              - Action:
+                  - "ec2:CreateNetworkInterface"
+                  - "ec2:DescribeNetworkInterfaces"
+                  - "ec2:DeleteNetworkInterface"
+                Resource: "*"
+                Effect: "Allow"
+        - PolicyName: "SecretAccess"
+          PolicyDocument:
+            Statement:
+              Action: "secretsmanager:*"
+              Effect: "Allow"
+              Resource: "*"
+      Tags:
+        - Key: "component"
+          Value: "development"
+        - Key: "section"
+          Value: "logic"
+
+  DbCredentialsCreateLambda:
+      Type: "AWS::Lambda::Function"
+      DependsOn:
+        - "RdsStack"
+      Properties:
+        FunctionName: "DbCredentialsCreateLambda"
+        Code:
+          S3Bucket:
+            Fn::ImportValue:
+              !Join [ ':', [ !Ref 'SeedStackName', 'SeedBucketName' ] ]
+          S3Key: "development/cfn-stacks/infrastructure/dbmgr/dbmgr.zip"
+        Handler: "index.handler"
+        Runtime: "python3.7"
+        Timeout: 60
+        Role: !GetAtt "DatabaseCredentialApiRole.Arn"
+        VpcConfig:
+          SubnetIds:
+            - !GetAtt "NetworkStack.Outputs.PrivateSubnetOne"
+            - !GetAtt "NetworkStack.Outputs.PrivateSubnetTwo"
+          SecurityGroupIds:
+            - !Ref 'DbCredentialsCreateSecurityGroup'
+        Layers:
+          - !Ref 'PymsqlLambdaLayer'
+
+  DbCredentialsCreateSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Access to the RDS Serverless Database"
+      VpcId: !GetAtt 'NetworkStack.Outputs.VpcId'
+
+  DbCredentialsCreateRdsIngress:
+    Type: "AWS::EC2::SecurityGroupIngress"
+    Properties:
+      GroupId: !GetAtt 'RdsStack.Outputs.RDSSecurityGroup'
+      SourceSecurityGroupId: !Ref 'DbCredentialsCreateSecurityGroup'
+      ToPort: 3306
+      IpProtocol: "-1"
+
+
+  ProductSyncCredentialsCreateInvoke:
+    Type: "AWS::CloudFormation::CustomResource"
+    Version: "1.0"
+    Properties:
+      ServiceToken: !Ref "DbCredentialsCreateLambda"
+      SourceSecretArn:
+        Fn::ImportValue:
+          !Join [ ':', [ !Ref 'SeedStackName', 'InfrastructureSecretArn' ] ]
+      TargetSecretArn: !Ref 'ProductsyncSecret'
+
