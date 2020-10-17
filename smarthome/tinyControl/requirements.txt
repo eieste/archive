@@ -1,0 +1,4 @@
+cryptography
+requests
+python3-memcached
+flask-socketio

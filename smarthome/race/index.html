@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.1.0/paho-mqtt.min.js"></script>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <link href="race.css" rel="stylesheet" />
+        <meta charset="utf-8" />
+    </head>
+
+    <body>
+
+        <div class="welcome screen" id="welcome_screen">
+            
+            <h1>LED-Race</h1>
+            <hr>
+
+            Your Name: <br>
+            <input type="text" id="welcome_playername" /><br>
+            
+            Select your Color:<br>
+            <select id="welcome_playercolor">
+                <option value="255,0,0">ROT</option>
+                <option value="0,255,0">Grün</option>
+                <option value="0,0,255">Blau</option>
+            </select>
+            <div class="currentPlayerList">
+
+            </div>
+
+            <input type="button" id="welcome_start" value="Start" />
+
+        </div>
+        
+        <div class="ready screen" id="ready_screen">
+            Player<br>
+            <div class="currentPlayerList">
+
+            </div><br>
+            Game-Host:<br>
+            <div id="ready_master">
+                No gamehost!
+            </div>
+            <input type="button" id="ready_start" value="Start" />
+        </div>
+        
+        <div class="raceCountdown screen" id="countdown_screen">
+            <span id="countdown"></span>
+        </div>
+        
+        <div class="race screen" id="raceGameScreen">
+            <h3>Spieler:</h3>
+            <div class="currentPlayerList">
+
+            </div><br>
+            <h3>Runden:</h3>
+            <div id="lap"></div>
+        </div>
+
+        <script type="text/javascript" src="race.js"></script>
+
+    </body>
+
+</html>
